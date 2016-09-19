@@ -114,7 +114,7 @@ Typical usage:
           reader.onload = function(event) {
             // The file's text will be printed here
             console.debug("[granite-file-reader] _onChange", event.target.result);
-            this.fire('file-read', event.target.result);
+            context.fire('file-read', event.target.result);
           };
           switch (this.readAs) {
             case "binary" : 
