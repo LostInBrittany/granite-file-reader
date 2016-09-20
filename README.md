@@ -4,6 +4,9 @@
 > 
 > Polymer 1.5 ready
 
+## Doc & demo
+
+[https://lostinbrittany.github.io/granite-file-reader](https://lostinbrittany.github.io/granite-file-reader)
 
 ## Install
 
