@@ -1,4 +1,4 @@
-# granite-alert
+# granite-file-reader
 
 > A lightweight element to read a file from the filesystem
 > 
@@ -10,10 +10,10 @@
 Install the component using [Bower](http://bower.io/):
 
 ```sh
-$ bower install LostInBrittany/granite-alert --save
+$ bower install LostInBrittany/granite-file-reader --save
 ```
 
-Or [download as ZIP](https://github.com/LostInBrittany/granite-alert/archive/gh-pages.zip).## Usage
+Or [download as ZIP](https://github.com/LostInBrittany/granite-file-reader/archive/gh-pages.zip).## Usage
 
 1. Import Web Components' polyfill (if needed):
 
@@ -24,7 +24,7 @@ Or [download as ZIP](https://github.com/LostInBrittany/granite-alert/archive/gh-
 2. Import Custom Element:
 
     ```html
-    <link rel="import" href="bower_components/granite-alert/granite-alert.html">
+    <link rel="import" href="bower_components/granite-file-reader/granite-file-reader.html">
     ```
 
 3. Start using it!
