@@ -70,11 +70,22 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
       <h3>granite-file-reader</h3>
       <demo-snippet class="centered-demo">
         <template>
-          <granite-file-reader read-as="dataURL" accept=".txt,.html,.css,.sh">
-            <div class="clickHere">Click here to load a file</div>
+          <granite-file-reader  read-as="dataURL" accept=".txt,.html,.css,.sh">
+            <div id="fileReader" class="clickHere">Click here to load a file</div>
           </granite-file-reader>
         </template>
       </demo-snippet>
     </div>
+
+    <script>
+      window.addEventListener('WebComponentsReady', function(e) {
+          console.log('components ready');
+          function sayHi() {
+            console.log("hi");
+          }
+          var el = document.getElementById("fileReader");
+          el.addEventListener("click", sayHi, false);    
+      });
+    </script>
   </body> 
 </html>     

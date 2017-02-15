@@ -40,8 +40,8 @@ Typical usage:
           display: none;
         }
       </style>
-
-      <content on-tap="_onTap"></content>
+      
+      <content></content>
       <input
         id="fileInput"
         on-change="_onChange"
@@ -53,7 +53,7 @@ Typical usage:
 
 
 
-    <script>
+    <script>      
       Polymer({
         is: "granite-file-reader",
 
@@ -99,15 +99,23 @@ Typical usage:
         observers: [
         ],
         listeners: {
-         // "tap": "_onTap"
+          // Safari don't get the on-evt on light DOM
+          "tap": "_onTap"
         },
-        _onTap: function() {
-          // Inspired by https://github.com/winhowes/file-upload/
-          var elem = this.$.fileInput;
-          if (elem && document.createEvent) { // sanity check
-            var evt = document.createEvent('MouseEvents');
-            evt.initEvent('click', true, false);
-            elem.dispatchEvent(evt);
+        _onTap: function(evt) {
+          console.log("[granite-file-reader] _onTap");
+          console.dir(evt)
+          // if it's the event on the light dom, I launch another on the granite-file-reader
+          // (if I didn't tested it, it would loop...)
+          if (evt.srcElement.localName == "div") {
+            // Inspired by https://github.com/winhowes/file-upload/
+            var elem = this.$.fileInput;
+            if (elem && document.createEvent) { // sanity check
+              var evt = document.createEvent('MouseEvents');
+              evt.initEvent('click', true, false);
+              console.log("[granite-file-reader] _onTap - dispatch");
+              elem.dispatchEvent(evt);
+            }
           }
         },
         _onChange: function(evt) {
