@@ -47,6 +47,7 @@ Typical usage:
         on-change="_onChange"
         type="file"
         accept="{{accept}}"
+        multiple="[[multiple]]"
         hidden>  
     </template>
 
@@ -85,6 +86,13 @@ Typical usage:
           readAs: {
             type: String,
             value: "text"
+          },
+          /**
+           * If it should accept more than one file at a time
+           */
+          multiple: {
+            type: Boolean,
+            value: false
           }
         },
 
@@ -107,30 +115,33 @@ Typical usage:
             return;
           }
           console.debug("[granite-file-reader] _onChange", this.$.fileInput.files);   
-
-          var file = this.$.fileInput.files[0];
-          console.debug("[granite-file-reader] _onChange",file);
-          var reader = new FileReader();
-          var context = this;
-          reader.onload = function(event) {
-            // The file's text will be printed here
-            console.debug("[granite-file-reader] _onChange", event.target.result);
-            context.fire('file-read', event.target.result);
-          };
-          switch (this.readAs) {
-            case "binary" : 
-              reader.readAsBinaryString(file);
-              break;
-            case "ArrayBuffer" :
-              reader.readAsArrayBuffer(file);
-              break;
-            case "dataURL":
-              reader.readAsDataURL(file);
-              break;
-            case "text":
-            default:
-              reader.readAsText(file);
-          };      
+          
+          var file, i, n = this.$.fileInput.files.length;
+          for (i=0; i<n; i++) {
+            file = this.$.fileInput.files[i];
+            console.debug("[granite-file-reader] _onChange",file);
+            var reader = new FileReader();
+            var context = this;
+            reader.onload = function(event) {
+              // The file's text will be printed here
+              console.debug("[granite-file-reader] _onChange", event.target.result);
+              context.fire('file-read', event.target.result);
+            };
+            switch (this.readAs) {
+              case "binary" : 
+                reader.readAsBinaryString(file);
+                break;
+              case "ArrayBuffer" :
+                reader.readAsArrayBuffer(file);
+                break;
+              case "dataURL":
+                reader.readAsDataURL(file);
+                break;
+              case "text":
+              default:
+                reader.readAsText(file);
+            };      
+          }
         },
       });
     </script>
