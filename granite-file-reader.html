@@ -22,7 +22,7 @@ Typical usage:
   </paper-button>
 </granite-file-reader>
 ```
-    
+
 @element granite-file-reader
 @blurb A lightweight element to read a file from the filesystem
 @homepage index.html
@@ -40,7 +40,7 @@ Typical usage:
           display: none;
         }
       </style>
-      
+
       <content></content>
       <input
         id="fileInput"
@@ -48,12 +48,12 @@ Typical usage:
         type="file"
         accept="{{accept}}"
         multiple="[[multiple]]"
-        hidden>  
+        hidden>
     </template>
 
 
 
-    <script>      
+    <script>
       Polymer({
         is: "granite-file-reader",
 
@@ -107,7 +107,7 @@ Typical usage:
           console.dir(evt)
           // if it's the event on the light dom, I launch another on the granite-file-reader
           // (if I didn't tested it, it would loop...)
-          if (evt.srcElement.localName == "div") {
+          if (evt.srcElement.localName != "granite-file-reader") {
             // Inspired by https://github.com/winhowes/file-upload/
             var elem = this.$.fileInput;
             if (elem && document.createEvent) { // sanity check
@@ -122,8 +122,8 @@ Typical usage:
           if (!this.$.fileInput.files){
             return;
           }
-          console.debug("[granite-file-reader] _onChange", this.$.fileInput.files);   
-          
+          console.debug("[granite-file-reader] _onChange", this.$.fileInput.files);
+
           var file, i, n = this.$.fileInput.files.length;
           for (i=0; i<n; i++) {
             file = this.$.fileInput.files[i];
@@ -136,7 +136,7 @@ Typical usage:
               context.fire('file-read', event.target.result);
             };
             switch (this.readAs) {
-              case "binary" : 
+              case "binary" :
                 reader.readAsBinaryString(file);
                 break;
               case "ArrayBuffer" :
@@ -148,7 +148,7 @@ Typical usage:
               case "text":
               default:
                 reader.readAsText(file);
-            };      
+            };
           }
         },
       });
