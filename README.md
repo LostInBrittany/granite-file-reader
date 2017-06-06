@@ -2,7 +2,7 @@
 
 > A lightweight element to read a file from the filesystem
 > 
-> Polymer 1.5 ready
+> Hybrid Polymer element, 1.x-2.x ready
 
 ## Doc & demo
 
