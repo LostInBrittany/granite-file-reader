@@ -24,19 +24,33 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
       window.Polymer = {lazyRegister: true, dom: 'shadow'};
 
       // load webcomponents polyfills
-      (function() {
+      /* eslint no-unused-vars: "off" */
+      function lazyLoadWCPolyfillsIfNecessary() {
+        let onload = function() {
+          if ('registerElement' in document
+              && 'import' in document.createElement('link')
+              && 'content' in document.createElement('template')) {
+            // For native Imports, manually fire WCR so user code
+            // can use the same code path for native and polyfill'd imports.
+            if (!window.HTMLImports) {
+              document.dispatchEvent(
+                  new CustomEvent('WebComponentsReady', {bubbles: true}));
+            }
+          }
+        };
+
         if ('registerElement' in document
             && 'import' in document.createElement('link')
             && 'content' in document.createElement('template')) {
           // browser has web components
+          onload();
         } else {
           // polyfill web components
           var e = document.createElement('script');
           e.src = '../../webcomponentsjs/webcomponents-lite.min.js';
           document.head.appendChild(e);
         }
-      })();
-
+      };
 
     </script>
     <link   rel="import" href="../../polymer/polymer.html">
@@ -70,8 +84,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
       <h3>granite-file-reader</h3>
       <demo-snippet class="centered-demo">
         <template>
-          <granite-file-reader  read-as="dataURL" accept=".txt,.html,.css,.sh">
-            <div id="fileReader" class="clickHere">Click here to load a file</div>
+          <granite-file-reader id="fileReader" read-as="dataURL" accept=".txt,.html,.css,.sh" debug>
+            <div  class="clickHere">Click here to load a file...</div>
           </granite-file-reader>
         </template>
       </demo-snippet>
@@ -80,12 +94,16 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
     <script>
       window.addEventListener('WebComponentsReady', function(e) {
           console.log('components ready');
-          function sayHi() {
-            console.log("hi");
+          function fileRead(evt) {
+            console.log('File read', evt);
           }
-          var el = document.getElementById("fileReader");
-          el.addEventListener("click", sayHi, false);    
+          var el = document.getElementById('fileReader');
+          console.log('got element by id ', el)
+          el.addEventListener('load', fileRead, false);
+          el.addEventListener('on-load', fileRead, false);
       });
+
+      lazyLoadWCPolyfillsIfNecessary();
     </script>
   </body> 
 </html>     
