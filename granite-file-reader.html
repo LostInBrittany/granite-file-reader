@@ -165,7 +165,7 @@ Typical usage:
 
         if (this.debug) console.log('[granite-file-reader] _onChange', this.$.fileInput.files);
 
-        for (const file of this.$.fileInput.files.length) {
+        for (const file of this.$.fileInput.files) {
           if (this.debug) console.log('[granite-file-reader] _onChange', file);
           let reader = new FileReader();
 
