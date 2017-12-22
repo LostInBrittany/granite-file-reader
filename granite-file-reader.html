@@ -8,6 +8,7 @@ The above copyright notice and this permission notice shall be included in all c
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 -->
+
 <link rel="import" href="../polymer/polymer.html">
 
 <!--
@@ -28,196 +29,199 @@ Typical usage:
 @homepage index.html
 @demo demo/index.html
 -->
+
 <dom-module id="granite-file-reader">
+  <template>
+    <style>
+      :host {
+        display: block;
+        cursor: pointer;
+      }
+      
+      [hidden] {
+        display: none;
+      }
+    </style>
 
-    <template>
-      <style>
-        :host {
-          display: block;
-          cursor: pointer;
+    <slot></slot>
+    <input
+      id="fileInput"
+      on-change="_onChange"
+      type="file"
+      accept="{{accept}}"
+      multiple="[[multiple]]"
+      hidden />
+  </template>
+
+  <script>
+    Polymer({
+      is: 'granite-file-reader',
+
+
+      /**
+       * This event is triggered each time the reading operation is aborted
+       *
+       * @event abort
+       */
+
+      /**
+       * This event is triggered each time the reading operation encounter an error
+       *
+       * @event error
+       */
+
+      /**
+       * This event is triggered each time the reading operation is successfully completed
+       *
+       * @event load
+       */
+
+      /**
+       * This event is triggered each time the reading is starting
+       *
+       * @event load-start
+       */
+
+      /**
+       * This event is triggered each time the reading operation is completed
+       * (either in success or failure).
+       *
+       * @event load-end
+       */
+
+
+      /**
+       * Fired when a file has been read. Replaced with `load` event
+       * @deprecated
+       * @event file-read
+       */
+
+      properties: {
+        /**
+         *  The types of files that the browser can read
+         *  Available types are :
+         *  - A file extension starting with the STOP character (U+002E). (E.g.: ".jpg,.png,.doc")
+         *  - A valid MIME type with no extensions
+         *  - audio/* representing sound files HTML5
+         *  - video/* representing video files HTML5
+         *  - image/* representing image files HTML5
+         * See https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input
+         */
+        accept: {
+          type: String,
+          value: null,
+        },
+        /**
+         * How does the browser must read the file
+         * Available types are `text`, `binary`, `ArrayBuffer` and `dataURL`
+         * See https://developer.mozilla.org/en-US/docs/Web/API/FileReader
+         */
+        readAs: {
+          type: String,
+          value: 'text',
+        },
+        /**
+         * If it should accept more than one file at a time
+         */
+        multiple: {
+          type: Boolean,
+          value: false,
+        },
+        /**
+        * If true debug logs are sent to the console
+        */
+        debug: {
+          type: Boolean,
+          value: false,
+        },
+      },
+
+      listeners: {
+        // Safari don't get the on-evt on light DOM
+        'tap': '_onTap',
+      },
+
+      _onTap: function(evt) {
+        if (this.debug) {
+          console.log('[granite-file-reader] _onTap', evt.target.localName);
+          console.dir(evt);
         }
-        [hidden] {
-          display: none;
+        // if it's the event on the light dom, I launch another on the granite-file-reader
+        // (if I didn't tested it, it would loop...)
+        if (evt.target.localName != 'granite-file-reader' && evt.target.id != 'fileInput') {
+          // Inspired by https://github.com/winhowes/file-upload/
+          var elem = this.$.fileInput;
+          if (elem && document.createEvent) { // sanity check
+            let newEvt = document.createEvent('MouseEvents');
+            newEvt.initEvent('click', true, false);
+            if (this.debug) console.log('[granite-file-reader] _onTap - dispatch');
+            elem.dispatchEvent(newEvt);
+          }
         }
-      </style>
+      },
 
-      <slot></slot>
-      <input
-        id="fileInput"
-        on-change="_onChange"
-        type="file"
-        accept="{{accept}}"
-        multiple="[[multiple]]"
-        hidden>
-    </template>
+      _onChange: function(evt) {
+        if (!this.$.fileInput.files) return;
 
+        if (this.debug) console.log('[granite-file-reader] _onChange', this.$.fileInput.files);
 
+        for (const file of this.$.fileInput.files) {
+          if (this.debug) console.log('[granite-file-reader] _onChange', file);
+          let reader = new FileReader();
 
-    <script>
-      Polymer({
-        is: 'granite-file-reader',
+          reader.onloadstart = (event) => {
+            if (this.debug) console.log('[granite-file-reader] firing `load-start` event');
+            this.fire('load-start', event.target.result);
+          };
 
+          reader.onloadend = (event) => {
+            if (this.debug) console.log('[granite-file-reader] firing `load-end` event');
+            this.fire('load-end', event.target.result);
+          };
 
-        /**
-         * This event is triggered each time the reading operation is aborted
-         *
-         * @event abort
-         */
+          reader.onerror = (event) => {
+            if (this.debug) console.log('[granite-file-reader] firing `error` event');
+            this.fire('error', event.target.result);
+            this.clearInput();
+          };
 
-        /**
-         * This event is triggered each time the reading operation encounter an error
-         *
-         * @event error
-         */
+          reader.abort = (event) => {
+            if (this.debug) console.log('[granite-file-reader] firing `abort` event');
+            this.fire('error', event.target.result);
+            this.clearInput();
+          };
 
-        /**
-         * This event is triggered each time the reading operation is successfully completed
-         *
-         * @event load
-         */   
+          reader.onload = (event) => {
+            // The file's text will be printed here
+            if (this.debug) console.log('[granite-file-reader] firing `load` event', event.target.result);
+            this.fire('file-read', event.target.result);
+            this.fire('load', event.target.result);
+            this.clearInput();
+          };
 
-        /**
-         * This event is triggered each time the reading is starting
-         *
-         * @event load-start
-         */   
-
-        /**
-         * This event is triggered each time the reading operation is completed 
-         * (either in success or failure).
-         *
-         * @event load-end
-         */    
-
-
-        /**
-         * Fired when a file has been read. Replaced with `load` event
-         * @deprecated
-         * @event file-read
-         */
-
-        properties: {
-          /**
-           *  The types of files that the browser can read
-           *  Available types are :
-           *  - A file extension starting with the STOP character (U+002E). (E.g.: ".jpg,.png,.doc")
-           *  - A valid MIME type with no extensions
-           *  - audio/* representing sound files HTML5
-           *  - video/* representing video files HTML5
-           *  - image/* representing image files HTML5
-           * See https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input
-           */
-          accept: {
-            type: String,
-            value: null,
-          },
-          /**
-           * How does the browser must read the file
-           * Available types are `text`, `binary`, `ArrayBuffer` and `dataURL`
-           * See https://developer.mozilla.org/en-US/docs/Web/API/FileReader
-           */
-          readAs: {
-            type: String,
-            value: 'text',
-          },
-          /**
-           * If it should accept more than one file at a time
-           */
-          multiple: {
-            type: Boolean,
-            value: false,
-          },
-          /**
-          * If true debug logs are sent to the console
-          */
-          debug: {
-              type: Boolean,
-              value: false,
-          },
-        },
-
-        observers: [
-        ],
-        listeners: {
-          // Safari don't get the on-evt on light DOM
-          'tap': '_onTap',
-        },
-        _onTap: function(evt) {
-          if (this.debug) { console.log('[granite-file-reader] _onTap', evt.target.localName); }
-          if (this.debug) { console.dir(evt); }
-          // if it's the event on the light dom, I launch another on the granite-file-reader
-          // (if I didn't tested it, it would loop...)
-          if (evt.target.localName != 'granite-file-reader' && evt.target.id != 'fileInput') {
-            // Inspired by https://github.com/winhowes/file-upload/
-            var elem = this.$.fileInput;
-            if (elem && document.createEvent) { // sanity check
-              let newEvt = document.createEvent('MouseEvents');
-              newEvt.initEvent('click', true, false);
-              if (this.debug) { console.log('[granite-file-reader] _onTap - dispatch'); }
-              elem.dispatchEvent(newEvt);
-            }
+          switch (this.readAs) {
+            case 'binary':
+              reader.readAsBinaryString(file);
+              break;
+            case 'ArrayBuffer':
+              reader.readAsArrayBuffer(file);
+              break;
+            case 'dataURL':
+              reader.readAsDataURL(file);
+              break;
+            case 'text':
+            default:
+              reader.readAsText(file);
           }
-        },
-        _onChange: function(evt) {
-          if (!this.$.fileInput.files) {
-            return;
-          }
-          if (this.debug) { console.log('[granite-file-reader] _onChange', this.$.fileInput.files); }
+        }
+      },
 
-          let file;
-          let i;
-          let n = this.$.fileInput.files.length;
-          for (i=0; i<n; i++) {
-            file = this.$.fileInput.files[i];
-            if (this.debug) { console.log('[granite-file-reader] _onChange', file); }
-            var reader = new FileReader();
-            var context = this;
+      clearInput: function() {
+        this.debounce('clearInput', () => {
+          this.$.fileInput.value = '';
+        }, 10);
+      },
 
-            reader.onloadstart = function(event) {
-              if (context.debug) { console.log('[granite-file-reader] firing `load-start` event'); }
-              context.fire('load-start', event.target.result);
-            };
-
-            reader.onloadend = function(event) {
-              if (context.debug) { console.log('[granite-file-reader] firing `load-end` event'); }
-              context.fire('load-end', event.target.result);
-            };
-
-            reader.onerror = function(event) {
-              if (context.debug) { console.log('[granite-file-reader] firing `error` event'); }
-              context.fire('error', event.target.result);
-            };
-
-            reader.abort = function(event) {
-              if (context.debug) { console.log('[granite-file-reader] firing `abort` event'); }
-              context.fire('error', event.target.result);
-            };
-
-            reader.onload = function(event) {
-              // The file's text will be printed here
-              if (context.debug) { console.log('[granite-file-reader] firing `load` event', event.target.result); }
-              context.fire('file-read', event.target.result);
-              context.fire('load', event.target.result);
-            };
-
-            switch (this.readAs) {
-              case 'binary':
-                reader.readAsBinaryString(file);
-                break;
-              case 'ArrayBuffer':
-                reader.readAsArrayBuffer(file);
-                break;
-              case 'dataURL':
-                reader.readAsDataURL(file);
-                break;
-              case 'text':
-              default:
-                reader.readAsText(file);
-            }
-          }
-        },
-
-      });
-    </script>
-
+    });
+  </script>
 </dom-module>
