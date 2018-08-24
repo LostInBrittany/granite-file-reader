@@ -1,3 +1,6 @@
+[![Published on Vaadin  Directory](https://img.shields.io/badge/Vaadin%20Directory-published-00b4f0.svg)](https://vaadin.com/directory/component/LostInBrittanygranite-file-reader)
+[![Stars on vaadin.com/directory](https://img.shields.io/vaadin-directory/star/LostInBrittanygranite-file-reader.svg)](https://vaadin.com/directory/component/LostInBrittanygranite-file-reader)
+
 # granite-file-reader
 
 > A lightweight element to read a file from the filesystem
